@@ -1,0 +1,12 @@
+body {
+  padding-top: 5rem;
+}
+.base {
+  padding: 3rem 1.5rem;
+  text-align: left;
+}
+
+.brand-img {
+	vertical-align: middle;
+	padding-bottom: .3125rem;
+}	

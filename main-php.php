@@ -9,10 +9,10 @@ define ("page", 2);
 $TOP_MENU[10]  = array (label=>"", page=>"home.html");
 $TOP_MENU[20]  = array (label=>"Agents", page=>"");
 $TOP_MENU[30]  = array (label=>"Monitors", page=>"dummy.html");
-$TOP_MENU[40]  = array (label=>"Menu", page=>"dummy.html");
-$TOP_MENU[50]  = array (label=>"Menu", page=>"dummy.html");
-$TOP_MENU[60]  = array (label=>"Menu", page=>"dummy.html");
-$TOP_MENU[70]  = array (label=>"Menu", page=>"dummy.html");
+$TOP_MENU[40]  = array (label=>"Hosts", page=>"dummy.html");
+$TOP_MENU[50]  = array (label=>"Maintenance", page=>"dummy.html");
+$TOP_MENU[60]  = array (label=>"Interfaces", page=>"dummy.html");
+
 
 $mainTemplate = "main-php.html";
 

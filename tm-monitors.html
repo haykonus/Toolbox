@@ -42,7 +42,7 @@
 								<th scope="col">Monitor name</th>
 								<th scope="col">Monitor key</th>
 								<th scope="col">Delay</th>
-								<th class="text-center" scope="col">Trigger</th>
+								<th class="text-right" scope="col">Trigger</th>
 							</tr>
 							</thead>
 							<tbody id="table_body"> </tbody>
@@ -206,10 +206,10 @@
 								} else {
 									disabled = 'style="display:none"';
 								}
-								triggerButton = '<td><button '+disabled+' onClick="showTriggers('+items[i].itemid+')" class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#itemTriggerList-'+i+'" aria-expanded="false" aria-controls="">'+items[i].triggers.length+' Trigger</button></td>';
+								triggerButton = '<td class="text-right"><button '+disabled+' onClick="showTriggers('+items[i].itemid+')" class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#itemTriggerList-'+i+'" aria-expanded="false" aria-controls="">'+items[i].triggers.length+' Trigger</button></td>';
 								itemTableBody += '<tr><td class="text-center">'+ itemCount++ +'</td><td>'+items[i].name+'</td><td>'+items[i].key_+'</td><td>'+items[i].delay+'</td>'+triggerButton+'</tr>';
-								itemTableBody += '<tr ><td colspan="5"><div id="itemTriggerList-'+i+'" class="collapse"><div  id="tTable-'+items[i].itemid+'" class="card card-body"></div></div></td></tr>';
-							}
+								itemTableBody += '<tr ><td colspan="5"><div id="itemTriggerList-'+i+'" class="collapse"><div  id="tTable-'+items[i].itemid+'" class=""></div></div></td></tr>';
+								}
 						}
 						document.getElementById("table_body").innerHTML = itemTableBody;
 						$("#list").show();

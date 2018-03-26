@@ -14,7 +14,7 @@ $TOP_MENU[40]  = array (label=>"Hosts", page=>"tm-dummy.html");
 $TOP_MENU[50]  = array (label=>"Maintenance", page=>"tm-dummy.html");
 $TOP_MENU[60]  = array (label=>"Interfaces", page=>"tm-dummy.html");
 
-$mainTemplate = "main-js.html";
+$mainTemplate = "main.html";
 
 # get the clicked menu id
 if(isset($_GET['id'])) {
@@ -72,18 +72,18 @@ function renderMenu($current_menu_id) {
 			$menu_html .= '<li class="nav-item dropdown">';
 			$menu_html .= '<a class="nav-link dropdown-toggle" href="" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'.$menu[label].'</a>';
 			$menu_html .= '<div class="dropdown-menu" aria-labelledby="dropdown01">';
-			$menu_html .= '<a class="dropdown-item" href="main-js.php?id=21">Agent statistics</a>';
-			$menu_html .= '<a class="dropdown-item" href="main-js.php?id=22">All agents</a>';
+			$menu_html .= '<a class="dropdown-item" href="main.php?id=21">Agent statistics</a>';
+			$menu_html .= '<a class="dropdown-item" href="main.php?id=22">All agents</a>';
 			$menu_html .= '</div>';
 			$menu_html .= '</li>';
 		} else {
 			if ($current_menu_id == $menu_id) {
 				$menu_html .= '<li class="nav-item active">';
-				$menu_html .= '<a class="nav-link" href="main-js.php?id='.$menu_id.'">'.$menu[label].'<span class="sr-only">(current)</span> </a>';
+				$menu_html .= '<a class="nav-link" href="main.php?id='.$menu_id.'">'.$menu[label].'<span class="sr-only">(current)</span> </a>';
 				$menu_html .= '</li>';					
 			} else {
 				$menu_html .= '<li class="nav-item">';
-				$menu_html .= '<a class="nav-link" href="main-js.php?id='.$menu_id.'">'.$menu[label].'</a>';
+				$menu_html .= '<a class="nav-link" href="main.php?id='.$menu_id.'">'.$menu[label].'</a>';
 				$menu_html .= '</li>';			
 			}
 		}

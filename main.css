@@ -10,3 +10,7 @@ body {
 	vertical-align: middle;
 	padding-bottom: .3125rem;
 }	
+
+.form-control {
+	border-radius: .25rem;
+}

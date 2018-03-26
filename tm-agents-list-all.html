@@ -1,0 +1,79 @@
+
+		<h2> Show all active agents</h2>
+		<div class="base">
+			<div class="row">			
+				<div class="col">
+										
+					<img id="list_progress" src="/img/ajax-loader.gif" alt="Loading..." />
+
+					<div id="list" style="display:none">
+						<table class="table table-striped">
+							<thead>
+							<tr class="table-light">
+								<th class="text-center" scope="col">#</th>
+								<th scope="col">Host</th>
+								<th scope="col">Agent version</th>
+							</tr>
+							</thead>
+							<tbody id="table_body"> </tbody>
+						</table>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+		<script type="text/JavaScript">
+		
+		//------------------------------------------------------------------------------------------
+		$(document).ready(function() {
+		
+			$("#list").hide();
+			$("#list_progress").show();
+			
+			// get the agents as JSON string
+			$.get("http://svx-zabbixp001/api-get-all-agents.php"+"?rand="+Math.floor(Math.random()*100), function(data) {
+		
+				$("#list").show();
+				$("#list_progress").hide();
+				
+				var items = JSON.parse(data).result;
+				
+				// sort by agent version
+				items.sort(function(a, b) {
+					var nameA = a.lastvalue.toUpperCase(); // ignore upper and lowercase
+					var nameB = b.lastvalue.toUpperCase(); // ignore upper and lowercase
+					if (nameA > nameB) {
+						return -1;
+					}
+					if (nameA < nameB) {
+						return 1;
+					}
+					return 0;
+				});
+				
+				// sort by hostname
+				/*
+				items.sort(function(a, b) {
+					var nameA = a.hosts[0].name.toUpperCase(); // ignore upper and lowercase
+					var nameB = b.hosts[0].name.toUpperCase(); // ignore upper and lowercase
+					if (nameA > nameB) {
+						return -1;
+					}
+					if (nameA < nameB) {
+						return 1;
+					}
+					return 0;
+				});
+				*/
+				
+				var agentTableBody = '';	
+				for (var i in items) {
+					agentTableBody += '<tr><td class="text-center">'+ i +'</td><td>'+items[i].hosts[0].name+'</td><td>'+items[i].lastvalue+'</td></tr>';
+				}				
+				document.getElementById("table_body").innerHTML = agentTableBody;
+				
+			}); //get()	
+		}); 
+		
+		</script>	

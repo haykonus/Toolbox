@@ -7,13 +7,12 @@
 define ("label",1);
 define ("page", 2);
 
-$TOP_MENU[10]  = array (label=>"", page=>"home.html");
-$TOP_MENU[20]  = array (label=>"Agents", page=>"dummy.html");
-$TOP_MENU[30]  = array (label=>"Monitors", page=>"dummy.html");
-$TOP_MENU[40]  = array (label=>"Menu", page=>"dummy.html");
-$TOP_MENU[50]  = array (label=>"Menu", page=>"dummy.html");
-$TOP_MENU[60]  = array (label=>"Menu", page=>"dummy.html");
-$TOP_MENU[70]  = array (label=>"Menu", page=>"dummy.html");
+$TOP_MENU[10]  = array (label=>"", page=>"tm-home.html");
+$TOP_MENU[20]  = array (label=>"Agents", page=>"");
+$TOP_MENU[30]  = array (label=>"Monitors", page=>"tm-monitors.html");
+$TOP_MENU[40]  = array (label=>"Hosts", page=>"tm-dummy.html");
+$TOP_MENU[50]  = array (label=>"Maintenance", page=>"tm-dummy.html");
+$TOP_MENU[60]  = array (label=>"Interfaces", page=>"tm-dummy.html");
 
 $mainTemplate = "main-js.html";
 
@@ -35,10 +34,10 @@ switch ($menuId) {
 	
 		# Sub Menus
 		case 21: # Agent statistics
-			$container = file_get_contents("agent-stats.html");
+			$container = file_get_contents("tm-agents-stat.html");
 			break;
 		case 22: # All agents
-			$container = file_get_contents("dummy.html");
+			$container = file_get_contents("tm-agents-list-all.html");
 			break;		
 			
 		# other Menus	

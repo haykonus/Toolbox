@@ -10,7 +10,7 @@ define ("page", 2);
 $TOP_MENU[10]  = array (label=>"", page=>"tm-home.html");
 $TOP_MENU[20]  = array (label=>"Agents", page=>"");
 $TOP_MENU[30]  = array (label=>"Monitors", page=>"tm-monitors.html");
-$TOP_MENU[40]  = array (label=>"Hosts", page=>"tm-dummy.html");
+$TOP_MENU[40]  = array (label=>"Hosts", page=>"tm-hosts.html");
 $TOP_MENU[50]  = array (label=>"Maintenance", page=>"tm-dummy.html");
 $TOP_MENU[60]  = array (label=>"Interfaces", page=>"tm-dummy.html");
 

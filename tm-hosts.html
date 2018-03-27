@@ -1,0 +1,103 @@
+<h2> Create Host </h2>
+<div class="base">
+	<div class="row">			
+		<div class="col">
+			<div class="row">
+				<div class="col-md-6" >
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text mb-2">Host:</span>
+						</div>
+						<input type="text" id="inputHostName" class="form-control mb-2"  autocomplete="off" placeholder="Type here">
+						<div class="input-group-append">
+							
+							<button id="hostTypeDD" class="btn dropdown-toggle mb-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ESX</button>
+							<div class="dropdown-menu">
+							  <a class="dropdown-item" onclick="handleDropDown(0) "href="#">ESX</a>
+							  <a class="dropdown-item" onclick="handleDropDown(1) "href="#">Oracle</a>
+							  <a class="dropdown-item" onclick="handleDropDown(2) "href="#">MS-SQL</a>
+							</div>
+						</div>
+						<div class="input-group-append">
+							<button id="applyButton" onclick="handleApplyButton()" type="button" class="btn btn-primary ml-1 mb-2">Apply</button>
+						</div>
+					</div> 
+					
+					<br>
+					<br>
+					
+					<div class="alert alert-success " role="alert">
+						Host created successful !
+					</div>
+					
+				</div> 			
+			</div>
+			
+			<div class="row-auto">
+
+			</div>
+
+			
+			
+		</div>
+	</div>
+</div>
+
+<script type="text/JavaScript">
+
+
+//------------------------------------------------------------------------------------------
+// Gobals
+//------------------------------------------------------------------------------------------
+const	ESX    = 0;
+const	Oracle = 1;
+const	MSSQL  = 2;		
+
+var hostTypeDDMenu = ["ESX","Oracle","MS-SQL"];
+var HOST_TYPE; 
+
+//------------------------------------------------------------------------------------------
+$(document).ready(function() {
+
+	HOST_TYPE = ESX;
+	$("#msgHostNotFound").hide();
+	
+	document.getElementById("applyButton").setAttribute("disabled",""); 
+}); 
+
+$("#inputHostName").keyup(function(event) {
+		
+	// enter key
+	if (event.keyCode === 13) {
+		handleApplyButton();
+	// all other keys	
+	} else {	
+		var host = document.querySelector("#inputHostName").value;
+		//host = host.replace(/^\s*|\s*$/g,'');
+		validateHostName = new RegExp(/^[a-zA-Z]+[a-zA-Z0-9\-\_\.]*$/);
+		if (host.match(validateHostName) != null) {
+			console.log(host);
+			document.getElementById("applyButton").removeAttribute("disabled","");
+		}
+		else {
+			console.log("fail");
+			document.getElementById("applyButton").setAttribute("disabled","");
+		}
+			
+	}
+});		
+		
+//------------------------------------------------------------------------------------------
+function handleApplyButton() {	
+
+}
+
+//------------------------------------------------------------------------------------------
+function handleDropDown(hostType) {	
+
+	document.getElementById("hostTypeDD").innerHTML = hostTypeDDMenu[hostType];
+	
+
+}
+		
+</script>	

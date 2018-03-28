@@ -13,4 +13,9 @@ body {
 
 .form-control {
 	border-radius: .25rem;
+	
+}
+
+.input-group-text-ba {
+	width: 7rem;
 }

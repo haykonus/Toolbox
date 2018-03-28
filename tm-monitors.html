@@ -17,9 +17,11 @@
 									<button id="applyButton" onclick="handleApplyButton()" type="button" class="btn btn-primary ml-1 mb-2">Apply</button>
 								</div>
 							</div> 
+							<p class="text-danger" id="msgHostNotFound">No matches found</p>
+							<p class="text-danger" id="msgItemsNotFound">Host has no items</p>
 						</div>	
 					</div>
-					
+										
 					<br>
 										
 					<img id="list_progress" src="/img/ajax-loader.gif" alt="Loading..." />
@@ -56,6 +58,7 @@
 			$("#list_progress").hide();
 			$("#list").hide();
 			$("#msgHostNotFound").hide();
+			$("#msgItemsNotFound").hide();
 			$("#hostDropDown").hide();
 			document.getElementById("applyButton").setAttribute("disabled",""); 
 		}); 
@@ -69,7 +72,9 @@
 			  //space and all other keys		
 			} else if (event.keyCode === 32 || event.keyCode != 0) {
 			
-				document.getElementById("applyButton").setAttribute("disabled",""); 
+				document.getElementById("applyButton").setAttribute("disabled","");
+				$("#msgItemsNotFound").hide();
+				
 				var host = document.querySelector("#inputHostName").value;
 				//clear space
 				host = host.replace(/^\s*|\s*$/g,'');
@@ -206,7 +211,7 @@
 
 					} else{
 						$("#list").hide();
-						$("#msgHostNotFound").show();
+						$("#msgItemsNotFound").show();
 					}
 				}); //end get()
 			}

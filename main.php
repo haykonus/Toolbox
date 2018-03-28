@@ -10,7 +10,7 @@ define ("page", 2);
 $TOP_MENU[10]  = array (label=>"", page=>"tm-home.html");
 $TOP_MENU[20]  = array (label=>"Agents", page=>"");
 $TOP_MENU[30]  = array (label=>"Monitors", page=>"tm-monitors.html");
-$TOP_MENU[40]  = array (label=>"Hosts", page=>"tm-hosts.html");
+$TOP_MENU[40]  = array (label=>"Hosts", page=>"");
 $TOP_MENU[50]  = array (label=>"Maintenance", page=>"tm-dummy.html");
 $TOP_MENU[60]  = array (label=>"Interfaces", page=>"tm-dummy.html");
 
@@ -38,7 +38,14 @@ switch ($menuId) {
 			break;
 		case 22: # All agents
 			$container = file_get_contents("tm-agents-list-all.html");
-			break;		
+			break;	
+			
+		case 41: #
+			$container = file_get_contents("tm-hosts-add-single.html");
+			break;
+		case 42: # 
+			$container = file_get_contents("tm-hosts-add-from-list.html");
+			break;					
 			
 		# other Menus	
 		default:
@@ -76,6 +83,14 @@ function renderMenu($current_menu_id) {
 			$menu_html .= '<a class="dropdown-item" href="main.php?id=22">All agents</a>';
 			$menu_html .= '</div>';
 			$menu_html .= '</li>';
+		} else if ($menu_id == 40) {
+			$menu_html .= '<li class="nav-item dropdown">';
+			$menu_html .= '<a class="nav-link dropdown-toggle" href="" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'.$menu[label].'</a>';
+			$menu_html .= '<div class="dropdown-menu" aria-labelledby="dropdown01">';
+			$menu_html .= '<a class="dropdown-item" href="main.php?id=41">Add single host</a>';
+			$menu_html .= '<a class="dropdown-item" href="main.php?id=42">Add hosts from a list</a>';
+			$menu_html .= '</div>';
+			$menu_html .= '</li>';			
 		} else {
 			if ($current_menu_id == $menu_id) {
 				$menu_html .= '<li class="nav-item active">';

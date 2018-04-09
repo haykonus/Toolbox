@@ -2,7 +2,7 @@
 // Common globals
 //------------------------------------------------------------------------------------------
 
-TB_VERSION = "1.0.1";
+TB_VERSION = "1.0.0";
 
 var TOOLBOX_URL = 'http://svx-zabbixp001';
 var UTILSCRIPTS = '/var/www/html/utilscripts';

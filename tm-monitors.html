@@ -1,225 +1,244 @@
+<h2> Show active monitors </h2>
+<div class="base">
+    <div class="row">   
+        
+        <div class="col">
+        
+            <div class="row">
+                <div class="col-md-10" >
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text mb-2">Host:</span>
+                        </div>  
+                        <input type="text" id="inputHostName" class="form-control mb-2" data-toggle="dropdown" autocomplete="off" placeholder="Type here to search">
+                        <div id="hostDropDown" class="dropdown-menu mt-2"></div>
+                    </div> 
+                </div>  
+            </div>
+            
+            <div class="row">
+                <div class="col-md-10">
+                    <p class="text-danger" id="msgHostNotFound">No matches found</p>
+                    <p class="text-danger" id="msgItemsNotFound">Host has no items</p>
+                </div>
+            </div>
+                                
+            <div class="row">
+                <div class="col-md-10" >
+                    <button id="applyButton" onclick="handleApplyButton()" type="button" class="btn btn-primary mb-2">Show</button>
+                </div>
+            </div>              
+            
+            <div class="row">
+                <div class="col-md-10" >                    
+                    <img id="list_progress" src="/img/ajax-loader.gif" alt="Loading..." />
+                    <div id="list" style="display:none">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr class="table-light">
+                                <th class="text-center" scope="col">#</th>
+                                <th scope="col">Monitor name</th>
+                                <th scope="col">Monitor key</th>
+                                <th scope="col">Delay</th>
+                                <th class="text-right" scope="col">Trigger</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table_body"> </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
 
-		<h2> Show active monitors </h2>
-		<div class="base">
-			<div class="row">			
-				<div class="col">
-				
-					<div class="row align-items-center ">
-						<div class="col-1">
-							<p class="mb-2">Host:</p> 
-						</div>
-						<div class="col-4">
-							<input type="text" id="inputHostName" class="form-control mb-2"  autocomplete="off" placeholder="Type here to search">
-							
-						</div>						
-						<div class="col-auto">
-							<button id="applyButton" onclick="handleApplyButton()" type="button" class="btn btn-primary mb-2">Apply</button>
-						</div>
-					</div>
-					
-					<div class="row align-items-center ">
-						<div class="col-1">
-							
-						</div>
-						<div class="col-3">
-							<p class="text-danger" id="msgHostNotFound">No matches found</p>
-							<div id="hostDropDown" class="dropdown-menu "></div>
-						</div>						
-						<div class="col-auto">
-							
-						</div>
-					</div>
-							
-					<br>
-										
-					<img id="list_progress" src="/img/ajax-loader.gif" alt="Loading..." />
+<script type="text/JavaScript">
 
-					<div id="list" style="display:none">
-						<table class="table table-striped">
-							<thead>
-							<tr class="table-light">
-								<th class="text-center" scope="col">#</th>
-								<th scope="col">Monitor name</th>
-								<th scope="col">Monitor key</th>
-								<th scope="col">Delay</th>
-								<th class="text-center" scope="col">Trigger</th>
-							</tr>
-							</thead>
-							<tbody id="table_body"> </tbody>
-						</table>
-					</div>
-					
-				</div>
-			</div>
-		</div>
-		
-		<script type="text/JavaScript">
-		
-		//------------------------------------------------------------------------------------------
-		// Gobals
-		//------------------------------------------------------------------------------------------
-		var HOST_ID = 0;
-		
-		//------------------------------------------------------------------------------------------
-		$(document).ready(function() {
-		
-			HOST_ID = 0;
-			$("#list_progress").hide();
-			$("#list").hide();
-			$("#msgHostNotFound").hide();
-			document.getElementById("applyButton").setAttribute("disabled",""); 
-		}); 
-		//------------------------------------------------------------------------------------------
-		$("#inputHostName").keyup(function(event) {
-		
-			// enter key
-			if (event.keyCode === 13) {
-				handleApplyButton();
-				
-			  //space and all other keys		
-			} else if (event.keyCode === 32 || event.keyCode != 0) {
-			
-				document.getElementById("applyButton").setAttribute("disabled",""); 
-				var host = document.querySelector("#inputHostName").value;
-				//clear space
-				host = host.replace(/^\s*|\s*$/g,'');
-				
-				if (host != '') {		
-					// get the search result host list (max. 15) as JSON string
-					$.get("http://svx-zabbixp001/api-search-host.php"+"?host="+host+"&rand="+Math.floor(Math.random()*100), function(data) {
-					
-						var results = JSON.parse(data).result;
-						var dropDownList = '';
-						
-						for (var r in results) {			
-							posHL = results[r].host.search(new RegExp(host,'i'));
-							sizeHL = host.length;
-							stringHL = results[r].host.substring(posHL, posHL+sizeHL);
-							stringHLRegex = new RegExp(stringHL);
-							hostHL = results[r].host.replace(stringHLRegex,'<span class="text-danger">'+stringHL+'</span>');
-							dropDownList += '<a href="#" class="dropdown-item" onclick="selectHost(\''+results[r].host+'\',\''+results[r].hostid+'\')">'+hostHL+'</a>';
-						}
-						if (dropDownList != '') {
-							document.getElementById("hostDropDown").innerHTML = dropDownList;
-							$("#msgHostNotFound").hide();
-							$("#hostDropDown").show();
-						} else {
-							$("#msgHostNotFound").show();
-							$("#hostDropDown").hide();
-						}	
-					}); //end get()
-				}
-				else {
-					$("#hostDropDown").hide();
-				}
-			}
-		});
-		//------------------------------------------------------------------------------------------
-		function selectHost(host, hostid) {
-		
-			HOST_ID = hostid;
-			document.querySelector("#inputHostName").value = host;
-			document.getElementById("applyButton").removeAttribute("disabled","");
-			$("#hostDropDown").hide();
-		}
-		//------------------------------------------------------------------------------------------
-		function showTriggers(itemid) {
-		
-			if (itemid) {
-				// get the item triggers as JSON string
-				$.get("http://svx-zabbixp001/api-get-item-triggers.php"+"?itemid="+itemid+"&rand="+Math.floor(Math.random()*100), function(data) {
-				
-					var triggers = JSON.parse(data).result;
-					var triggerTable = 
-						'<table class="table"> \
-						<thead> \
-							<tr class="table-light"> \
-								<th scope="col">#</th> \
-								<th scope="col">Trigger description</th> \
-								<th scope="col">Trigger expression</th> \
-								<th scope="col">Status</th> \
-							</tr> \
-						</thead> \
-						<tbody class="table">';
-						
-					var tTable = '';
-					var tCount;
-					var tStatusHL;
-					var tStatusRowHL;
-					
-					// if trigger exists, build the table
-					if (triggers.length != 0) {
-						tTable = triggerTable;
-						tCount = 1;
-						for (var t in triggers) {
-							if (triggers[t].status == 0) {
-								tStatusHL = '<span class="text-success">Enabled</span>';
-								tStatusRowHL = 'class="table-success"';
-							} else {
-								tStatusHL = '<span class="text-danger">Disabled</span>';
-								tStatusRowHL = 'class="table-danger"';
-							}
-							tTable +=  '<tr '+tStatusRowHL+'> \
-											<td>'+ tCount++ +'</td> \
-											<td>'+triggers[t].description+'</td> \
-											<td>'+triggers[t].expression+'</td> \
-											<td>'+tStatusHL+'</td> \
-										</tr>'; 
-						}
-						tTable += '</tbody></table>';
-						document.getElementById('tTable-'+itemid).innerHTML = tTable;
-					}
-				}); //end get()	
-			}
-		}
-		//------------------------------------------------------------------------------------------
-		function handleApplyButton() {		
+//------------------------------------------------------------------------------------------
+// Globals
+//------------------------------------------------------------------------------------------
+var HOST_ID;
 
-			$("#list_progress").hide();
-			$("#list").hide();
-		
-			if (HOST_ID) {
-				$("#list_progress").show();
-				
-				// get the host items as JSON string
-				$.get("http://svx-zabbixp001/api-get-host-items.php"+"?hostid="+HOST_ID+"&rand="+Math.floor(Math.random()*100), function(data) {
-				
-					var items = JSON.parse(data).result;
-					var itemTableBody = '';
-					var triggerButton = '';
-					var itemCount;
-				
-					$("#list_progress").hide();
-					
-					if (items.length != 0) {
-					
-						// build the item table
-						itemCount = 1;
-						for (var i in items) {
-						
-							// only active items
-							if (items[i].status == 0) {
-							
-								// check, if we have trigger
-								if (items[i].triggers.length != 0)  {								
-									disabled = '';
-								} else {
-									disabled = 'style="display:none"';
-								}
-								triggerButton = '<td><button '+disabled+' onClick="showTriggers('+items[i].itemid+')" class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#itemTriggerList-'+i+'" aria-expanded="false" aria-controls="">'+items[i].triggers.length+' Trigger</button></td>';
-								itemTableBody += '<tr><td class="text-center">'+ itemCount++ +'</td><td>'+items[i].name+'</td><td>'+items[i].key_+'</td><td>'+items[i].delay+'</td>'+triggerButton+'</tr>';
-								itemTableBody += '<tr ><td colspan="5"><div id="itemTriggerList-'+i+'" class="collapse"><div  id="tTable-'+items[i].itemid+'" class="card card-body"></div></div></td></tr>';
-							}
-						}
-						document.getElementById("table_body").innerHTML = itemTableBody;
-						$("#list").show();
+// API actions
 
-					} else{
-						$("#list").hide();
-						$("#msgHostNotFound").show();
-					}
-				}); //end get()
-			}
-		}
-		
-		</script>	
+var TB_SEARCH_HOST =        "/bin/perl "+UTILSCRIPTS+"/tb_search_host.pl";
+var TB_GET_HOST_ITEMS =     "/bin/perl "+UTILSCRIPTS+"/tb_get_host_items.pl";
+var TB_GET_ITEM_TRIGGERS =  "/bin/perl "+UTILSCRIPTS+"/tb_get_item_triggers.pl";    
+
+function showwwwInfo() {
+    
+    document.getElementById('tagIdTbVersion').innerHTML = TB_VERSION;   
+    $('#exampleModalCenter').modal(show);
+}
+
+//------------------------------------------------------------------------------------------
+$(document).ready(function() {
+
+    HOST_ID = 0;
+    
+    $("#list_progress").hide();
+    $("#list").hide();
+    $("#msgHostNotFound").hide();
+    $("#msgItemsNotFound").hide();
+    $("#hostDropDown").hide();
+    document.getElementById("applyButton").setAttribute("disabled",""); 
+    document.getElementById("inputHostName").focus();
+}); 
+//------------------------------------------------------------------------------------------
+$("#inputHostName").keyup(function(event) {
+
+    // enter key
+    if (event.keyCode === 13) {
+        handleApplyButton();
+        
+      //space and all other keys        
+    } else if (event.keyCode != 0) {
+    
+        document.getElementById("applyButton").setAttribute("disabled","");
+        $("#msgItemsNotFound").hide();
+        
+        var host = document.querySelector("#inputHostName").value;
+        //clear space
+        host = host.replace(/^\s*|\s*$/g,'');
+        
+        if (host != '') {       
+            // get the search result host list (max. 15) as JSON string
+            $.get(TOOLBOX_URL+"/wrapper.php?action="+TB_SEARCH_HOST+"&arg1="+host+"&rand="+Math.floor(Math.random()*100), function(data) {
+            
+                var results = JSON.parse(data).result;
+                var dropDownList = '';
+                
+                for (var r in results) {            
+                    posHL = results[r].host.search(new RegExp(host,'i'));
+                    sizeHL = host.length;
+                    stringHL = results[r].host.substring(posHL, posHL+sizeHL);
+                    stringHLRegex = new RegExp(stringHL);
+                    hostHL = results[r].host.replace(stringHLRegex,'<span class="text-danger">'+stringHL+'</span>');
+                    dropDownList += '<a href="#" class="dropdown-item" onclick="selectHost(\''+results[r].host+'\',\''+results[r].hostid+'\')">'+hostHL+'</a>';
+                }
+                if (dropDownList != '') {
+                    document.getElementById("hostDropDown").innerHTML = dropDownList;
+                    $("#msgHostNotFound").hide();
+                    $("#hostDropDown").show();
+                } else {
+                    $("#msgHostNotFound").show();
+                    $("#hostDropDown").hide();
+                }   
+            }); //end get()
+        }
+        else {
+            $("#hostDropDown").hide();
+            $("#msgHostNotFound").hide();
+        }
+    }
+});
+//------------------------------------------------------------------------------------------
+function selectHost(host, hostid) {
+
+    HOST_ID = hostid;
+    document.querySelector("#inputHostName").value = host;
+    document.getElementById("applyButton").removeAttribute("disabled","");
+    $("#hostDropDown").hide();
+}
+//------------------------------------------------------------------------------------------
+function showTriggers(itemid) {
+
+    if (itemid) {
+        // get the item triggers as JSON string TB_GET_ITEM_TRIGGERS
+        $.get(TOOLBOX_URL+"/wrapper.php?action="+TB_GET_ITEM_TRIGGERS+"&arg1="+itemid+"&rand="+Math.floor(Math.random()*100), function(data) {
+        
+            var triggers = JSON.parse(data).result;
+            var triggerTable = 
+                '<table class="table"> \
+                <thead> \
+                    <tr class="table-light"> \
+                        <th scope="col">#</th> \
+                        <th scope="col">Trigger description</th> \
+                        <th scope="col">Trigger expression</th> \
+                        <th scope="col">Status</th> \
+                    </tr> \
+                </thead> \
+                <tbody class="table">';
+                
+            var tTable = '';
+            var tCount;
+            var tStatusHL;
+            var tStatusRowHL;
+            
+            // if trigger exists, build the table
+            if (triggers.length != 0) {
+                tTable = triggerTable;
+                tCount = 1;
+                for (var t in triggers) {
+                    if (triggers[t].status == 0) {
+                        tStatusHL = '<span class="text-success">Enabled</span>';
+                        tStatusRowHL = 'class="table-success"';
+                    } else {
+                        tStatusHL = '<span class="text-danger">Disabled</span>';
+                        tStatusRowHL = 'class="table-danger"';
+                    }
+                    tTable +=  '<tr '+tStatusRowHL+'> \
+                                    <td>'+ tCount++ +'</td> \
+                                    <td>'+triggers[t].description+'</td> \
+                                    <td>'+triggers[t].expression+'</td> \
+                                    <td>'+tStatusHL+'</td> \
+                                </tr>'; 
+                }
+                tTable += '</tbody></table>';
+                document.getElementById('tTable-'+itemid).innerHTML = tTable;
+            }
+        }); //end get() 
+    }
+}
+//------------------------------------------------------------------------------------------
+function handleApplyButton() {      
+
+    $("#list_progress").hide();
+    $("#list").hide();
+
+    if (HOST_ID) {
+        $("#list_progress").show();
+        
+        // get the host items as JSON string
+        $.get(TOOLBOX_URL+"/wrapper.php?action="+TB_GET_HOST_ITEMS+"&arg1="+HOST_ID+"&rand="+Math.floor(Math.random()*100), function(data) {
+        
+            var items = JSON.parse(data).result;
+            var itemTableBody = '';
+            var triggerButton = '';
+            var itemCount;
+        
+            $("#list_progress").hide();
+            
+            if (items.length != 0) {
+            
+                // build the item table
+                itemCount = 1;
+                for (var i in items) {
+                
+                    // only active items
+                    if (items[i].status == 0) {
+                    
+                        // check, if we have trigger
+                        if (items[i].triggers.length != 0)  {                               
+                            disabled = '';
+                        } else {
+                            disabled = 'style="display:none"';
+                        }
+                        triggerButton = '<td class="text-right"><button '+disabled+' onClick="showTriggers('+items[i].itemid+')" class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#itemTriggerList-'+i+'" aria-expanded="false" aria-controls="">'+items[i].triggers.length+' Trigger</button></td>';
+                        itemTableBody += '<tr><td class="text-center">'+ itemCount++ +'</td><td>'+items[i].name+'</td><td>'+items[i].key_+'</td><td>'+items[i].delay+'</td>'+triggerButton+'</tr>';
+                        itemTableBody += '<tr ><td colspan="5"><div id="itemTriggerList-'+i+'" class="collapse"><div  id="tTable-'+items[i].itemid+'" class=""></div></div></td></tr>';
+                        }
+                }
+                document.getElementById("table_body").innerHTML = itemTableBody;
+                $("#list").show();
+
+            } else{
+                $("#list").hide();
+                $("#msgItemsNotFound").show();
+            }
+        }); //end get()
+    }
+}
+
+</script>   

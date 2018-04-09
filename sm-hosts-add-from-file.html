@@ -1,0 +1,316 @@
+<h2> Add hosts from a file </h2>
+
+<div class="base">
+    <div class="row">           
+        <div class="col">
+        
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text mb-2">Hosts:</span>
+                            <span id="tagIdTxtPrefix" class="input-group-text text-success bg-white mb-2"></span>
+                            <span id="tagIdTxtPrefixPlus" class="input-group-text mb-2">+</span>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="tagIdInputFile" accept=".txt">
+                            <label class="custom-file-control form-control-file custom-file-label" for="tagIdInputFile">Choose file</label>
+                        </div>
+                    </div> 
+                </div>  
+            </div>
+
+            <div class="row">
+                <div class="col-md-10">
+					<img id="tagIdProgress" src="/img/ajax-loader.gif" alt="Loading..." />
+                    <p id="tagIdInfoTxt"></p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-10">
+                    <button id="tagIdBtnHostType" class="btn btn-secondary dropdown-toggle mb-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                    <button id="tagIdBtnCheck" onclick="handleCheckFile()" type="button" class="btn btn-secondary ml-1 mb-2">Check file</button>
+                    <button id="tagIdBtnAddHosts" onclick="handleAddHosts()" type="button" class="btn btn-primary ml-1 mb-2">Add Hosts</button>
+                    <div id="tagIdDdnList" class="dropdown-menu"></div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-10">
+                    <p></p>
+                    <div id="tagIdAlert" hidden class="" role="alert"></div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-10">
+                    <table class="table table-striped mt-2" >
+                        <tbody id="tagIdTableCheckFile"> </tbody>
+                    </table>    
+                </div>
+            </div>
+                
+        </div>  
+                
+    </div>      
+</div>
+
+
+<script type="text/JavaScript">
+
+
+//------------------------------------------------------------------------------------------
+// Globals
+//------------------------------------------------------------------------------------------
+
+var HOST_TYPE  = 0;
+var HOST_LIST  = [];
+var HOST_TYPES = [
+    {   
+        label:"ESX",         
+        prefix:"",
+        add_action:"/bin/bash "+UTILSCRIPTS+"/tb_add_ESX_host.sh"       
+    },
+    {   
+        label:"Oracle",      
+        prefix:"ora1",
+        add_action:"/bin/bash "+UTILSCRIPTS+"/tb_add_oracle_host.sh"
+    },              
+    {   
+        label:"MS-SQL",      
+        prefix:"sql-pe1-",
+        add_action:"/bin/bash "+UTILSCRIPTS+"/tb_add_mssql_host.sh"
+    }
+];
+
+var HOST_FILE_LOADED = false;
+        
+// API actions
+
+var TB_GET_HOST = "/bin/perl "+UTILSCRIPTS+"/tb_get_host.pl";
+
+//------------------------------------------------------------------------------------------
+$(document).ready(function() {
+
+    HOST_TYPE = 0; //ESX as default
+    HOST_FILE_LOADED = false;
+    prefillForm (HOST_TYPE);
+    document.getElementById("tagIdBtnAddHosts").setAttribute("disabled",""); 
+	
+}); 
+
+//------------------------------------------------------------------------------------------
+function prefillForm (hostType) {
+
+    document.getElementById("tagIdBtnHostType").innerHTML = HOST_TYPES[hostType].label;
+    document.getElementById("tagIdBtnCheck").setAttribute("disabled","");
+    document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
+    document.getElementById("tagIdTableCheckFile").setAttribute("hidden","");
+    
+    infoTxtHide("tagIdInfoTxt");
+	document.getElementById("tagIdProgress").setAttribute("hidden","");
+    alertHide();
+
+    if (HOST_TYPES[HOST_TYPE].prefix != '') {   
+        $("#tagIdTxtPrefix").show();
+        $("#tagIdTxtPrefixPlus").show();
+        document.getElementById("tagIdTxtPrefix").innerHTML = HOST_TYPES[hostType].prefix;
+    } 
+    else {
+        $("#tagIdTxtPrefix").hide();
+        $("#tagIdTxtPrefixPlus").hide();
+    }
+    
+    document.getElementById("tagIdDdnList").innerHTML = '';
+    for (var ht in HOST_TYPES) {
+        document.getElementById("tagIdDdnList").innerHTML += '<a class="dropdown-item" onclick="handleDropDown('+ht+') "href="#">'+HOST_TYPES[ht].label+'</a>';
+    }
+    document.getElementById("tagIdInputFile").focus();
+}
+
+//------------------------------------------------------------------------------------------
+function handleCheckFile() {
+
+    alertHide();
+    infoTxtHide("tagIdInfoTxt");
+	document.getElementById("tagIdTableCheckFile").setAttribute("hidden","");
+    
+    var tableBody = ' \
+        <th class="text-center" scope="col">#</th> \
+        <th scope="col">Hostname</th> \
+        <th scope="col">Host check</th> \
+        <th scope="col">Add status</th>';
+        
+        
+    var hostErr  = 'class="text-danger"> Host already exist';
+    var charErr  = 'class="text-danger"> Invalid characters'; 
+    var notAdded = 'class="text-danger"> Not added';
+    var hostOk   = 'class="text-success"> OK';
+    var isOk     = false;
+    var allOk    = true;
+
+    if (HOST_TYPES[HOST_TYPE].prefix == '') {
+        var validateHostName = new RegExp(/^[a-zA-Z]+[a-zA-Z0-9\-\_\.]*$/);
+    }
+    else {
+        var validateHostName = new RegExp(/^[a-zA-Z0-9\-\_\.]*$/);
+    }
+    
+	document.getElementById("tagIdProgress").removeAttribute("hidden","");
+	
+    for (var i in HOST_LIST) {
+        var host = HOST_LIST[i];
+        host = HOST_TYPES[HOST_TYPE].prefix + host;
+        tableBody += '<tr><td class="text-center">'+ i + '</td><td>' + host + '</td>';
+        if (host.match(validateHostName) != null) {
+            // characters OK, check host name
+            data = getURL(TOOLBOX_URL+"/wrapper.php?action="+TB_GET_HOST+"&arg1="+host+"&rand="+Math.floor(Math.random()*100));
+            var results = JSON.parse(data).result;
+            if (results.length !== 0 && results[0].hostid) {
+                // host exists !
+                document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
+                tableBody += '<td '+hostErr+'</td>';
+                isOk = false;
+                allOk = false;
+            }
+            else {
+                // host OK
+                document.getElementById("tagIdBtnAddHosts").removeAttribute("disabled","");
+                tableBody += '<td '+hostOk+'</td>';
+                isOk = true;
+            }   
+        } 
+        else {
+            // bad characters
+            tableBody += '<td '+charErr+'</td>'
+            isOk = false;
+            allOk = false;
+        }
+        tableBody += '<td id="tagIdAddRow'+i+'"'+notAdded+'</td></tr>'
+    }
+	document.getElementById("tagIdProgress").setAttribute("hidden","");
+    document.getElementById("tagIdTableCheckFile").innerHTML = tableBody;
+    
+    if (HOST_LIST.length == 0 || !allOk) {
+        if (HOST_LIST.length == 0) {
+            infoTxtDanger("tagIdInfoTxt",'Empty host file');   
+        }   
+        if (!allOk) {
+            infoTxtDanger("tagIdInfoTxt",'Error(s) in hosts file');
+            document.getElementById("tagIdTableCheckFile").removeAttribute("hidden","");            
+        }
+        document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");    
+        document.getElementById("tagIdInputFile").focus();
+    }
+    else {
+        infoTxtSuccess("tagIdInfoTxt", 'All host checks OK');
+        document.getElementById("tagIdTableCheckFile").removeAttribute("hidden","");
+        document.getElementById("tagIdBtnAddHosts").removeAttribute("disabled","");
+        document.getElementById("tagIdBtnAddHosts").focus();        
+    }   
+}
+
+//------------------------------------------------------------------------------------------
+$('.custom-file-input').on('change', function(event){
+
+    HOST_LIST = [];
+    var fileObj = event.target.files[0];
+    var fileName = $(this).val();
+    var reader = new FileReader();
+    
+    reader.onload = function(fileLoadedEvent) {
+        var txtFile = fileLoadedEvent.target.result;
+        // prepare file from UNIX, MAC or PC
+        txtFile = txtFile.replace(/\r/g,',');
+        txtFile = txtFile.replace(/\n/g,',');
+        txtFile = txtFile.split(",");
+        
+        var id = 0;
+        txtFile.forEach (function (host) {
+            host = host.replace(/^\s*|\s*$/g,'');
+            if (host != '') {
+                HOST_LIST.push(host);
+            }
+        });
+        HOST_FILE_LOADED = true;
+    };
+    reader.readAsText(fileObj, 'UTF-8');
+    var fileName = $(this).val().split('\\\\').pop();
+    $(this).next('.form-control-file').addClass("selected").html(fileName);
+    document.getElementById("tagIdBtnCheck").removeAttribute("disabled","");
+    document.getElementById("tagIdBtnCheck").focus();
+    document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
+    document.getElementById("tagIdTableCheckFile").setAttribute("hidden","");
+    
+    infoTxtHide("tagIdInfoTxt");
+    alertHide();
+});
+
+//------------------------------------------------------------------------------------------
+function handleAddHosts() { 
+
+    var ok  = 0;
+    var err = 0;
+    for (var h in HOST_LIST) {
+        var msg = addHost(HOST_LIST[h]);
+        if (msg == 'OK') {
+            document.getElementById("tagIdAddRow"+h).setAttribute("class","text-success");
+            ok++;
+        }
+        else {
+            document.getElementById("tagIdAddRow"+h).setAttribute("class","text-danger");
+            err++;
+        }
+        document.getElementById("tagIdAddRow"+h).innerHTML = msg;
+    }
+    if (err) {
+        alertDanger(ok+' host(s) added successfully, '+err+' host(s) failed');
+    }
+    else {
+        alertSuccess(ok+' host(s) added successfully');
+    }
+    
+    document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
+}
+
+//------------------------------------------------------------------------------------------
+function addHost(host) {
+
+    data = getURL(TOOLBOX_URL+"/wrapper.php?action="+HOST_TYPES[HOST_TYPE].add_action+"&arg1="+host+"&rand="+Math.floor(Math.random()*100));
+        
+        var msgOk  = 'OK';
+        var msgErr = 'The host could not be added <br>';
+        
+        if (data) {
+            try {
+                var obj = JSON.parse(data).result;
+                    if ("hostids" in obj && obj.hostids.length == 1) {
+                        return(msgOk);
+                    }
+                    else {
+                        return(msgErr+'ERROR: no "hostids" returned or "hostids.length" != 1 <br> JSON: '+data);
+                    }
+            } catch(exception) {
+                return(msgErr+'ERROR: wrog JSON string or "result" not found <br> JSON: '+data);
+            }   
+        } 
+        else {
+            return(msgErr+'ERROR: empty answer from zabbix host');
+        }
+}
+
+//------------------------------------------------------------------------------------------
+function handleDropDown(hostType) { 
+
+    HOST_TYPE = hostType;
+    prefillForm(hostType);
+    if (HOST_FILE_LOADED) {
+        document.getElementById("tagIdBtnCheck").removeAttribute("disabled","");
+        document.getElementById("tagIdBtnCheck").focus();
+    }
+    
+}
+
+
+</script>   

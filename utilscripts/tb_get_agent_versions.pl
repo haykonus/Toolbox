@@ -15,18 +15,18 @@ use constant { true => 1, false => 0 };
 
 $curl               = '/bin/curl';
 $CURL_DEBUG_FLAG    = "OFF";
-$api_url  			= "http://zabbix/api_jsonrpc.php";
-
+$api_url            = "http://zabbix/api_jsonrpc.php";
 
 #--------------------------------------------------------------------------------------
 # Autorisation
 #--------------------------------------------------------------------------------------
+
 $reqBody = '\'{
         "jsonrpc":"2.0","id":1,
         "method": "user.login",
         "params": { "user": "api", "password": "@p1" }
 }\'';
-		  
+          
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;
 $out = `$curlCmd`; EXE_DEBUG ($curlCmd, $?, $out, $CURL_DEBUG_FLAG );
 $zbx_auth = decode_json($out)->{'result'};
@@ -74,8 +74,8 @@ foreach $r (@results) {
 
 $json = '['; $first = 1;
 foreach my $key (keys(%agent)) {
-	$json .= ',' if not $first; $first = 0;
-	$json .= '{"version":"'.$key.'","number":"'.$agent{$key}.'"}';
+    $json .= ',' if not $first; $first = 0;
+    $json .= '{"version":"'.$key.'","number":"'.$agent{$key}.'"}';
 }
 $json .= ']';
 

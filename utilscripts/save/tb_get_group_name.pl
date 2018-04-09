@@ -15,18 +15,18 @@ use constant { true => 1, false => 0 };
 
 $curl               = '/bin/curl';
 $CURL_DEBUG_FLAG    = "OFF";
-$api_url            = "http://zabbix/api_jsonrpc.php";
+$api_url  			= "http://zabbix/api_jsonrpc.php";
 
-$host_id            = $ARGV[0];
+$group_id 		= $ARGV[0];
 
 #--------------------------------------------------------------------------------------
 # Autorisation
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{ 
-    "jsonrpc":"2.0","id":1,
-    "method": "user.login",
-    "params": { "user": "api", "password": "@p1" }
+	"jsonrpc":"2.0","id":1,
+	"method": "user.login",
+	"params": { "user": "api", "password": "@p1" }
 }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;
@@ -34,17 +34,16 @@ $out = `$curlCmd`; EXE_DEBUG ($curlCmd, $?, $out, $CURL_DEBUG_FLAG );
 $zbx_auth = decode_json($out)->{'result'};
 
 #--------------------------------------------------------------------------------------
-# get host
+# get trigger
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{
-        "jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
-        "method": "item.get",
-        "params": {
-                "hostids": "'.$host_id.'",
-                "output":   [ "name", "key_", "delay", "itemid", "status" ],
-                "selectTriggers": [ "triggerid" ]       
-        }
+	    "jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
+	    "method": "hostgroup.get",
+	    "params": {
+			"groupids": "'.$group_id.'",
+	        "output":  [ "name" ]
+		}
 }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;

@@ -15,18 +15,18 @@ use constant { true => 1, false => 0 };
 
 $curl               = '/bin/curl';
 $CURL_DEBUG_FLAG    = "OFF";
-$api_url            = "http://zabbix/api_jsonrpc.php";
+$api_url  			= "http://zabbix/api_jsonrpc.php";
 
-$host_id            = $ARGV[0];
+$template_name 			= $ARGV[0];
 
 #--------------------------------------------------------------------------------------
 # Autorisation
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{ 
-    "jsonrpc":"2.0","id":1,
-    "method": "user.login",
-    "params": { "user": "api", "password": "@p1" }
+	"jsonrpc":"2.0","id":1,
+	"method": "user.login",
+	"params": { "user": "api", "password": "@p1" }
 }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;
@@ -39,11 +39,16 @@ $zbx_auth = decode_json($out)->{'result'};
 
 $reqBody = '\'{
         "jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
-        "method": "item.get",
+        "method": "template.get",
         "params": {
-                "hostids": "'.$host_id.'",
-                "output":   [ "name", "key_", "delay", "itemid", "status" ],
-                "selectTriggers": [ "triggerid" ]       
+                "output":   [ "name", "templateid"],
+				"searchWildcardsEnabled": false,
+				"limit": "15",
+				"sortfield": "name",
+				"sortorder": "DESC",
+				"search": {
+                    "name": "'.$template_name.'"
+                }
         }
 }\'';
 

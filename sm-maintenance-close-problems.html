@@ -1,0 +1,273 @@
+<h2> Close problems </h2>
+<div class="base">
+    <div class="row">   
+        
+        <div class="col"> 
+        
+            <div class="row">
+                <div class="col-md-10" >
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text input-group-text-ba mb-2">Host:</span>
+                        </div>  
+                        <input type="text" id="tagIdInputHostName" class="form-control mb-2" data-toggle="dropdown" autocomplete="off" placeholder="Type here to search">
+                        <div id="tagIdDropDownHosts" class="dropdown-menu mt-2"></div>
+                        
+                        <!--<div class="input-group-append">
+                            <button id="tagIdButtonClose" onclick="handleCloseProblems()" type="button" class="btn float-left btn-primary mb-2">Close Problems</button>
+                        </div>-->
+                    </div> 
+                    <p id="tagIdInfoTxtHostName"></p>
+                </div>  
+            </div>
+
+            
+            <div class="row">
+                <div class="col-md-6" >
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text input-group-text-ba mb-2">From days ago:</span>
+                        </div>  
+                        <input type="text" id="tagIdInputFrom" class="form-control mb-2"  autocomplete="off" placeholder="From">
+                    </div>  
+                    <p id="tagIdInfoTxtFrom"></p>
+                </div>
+
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6" >
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text input-group-text-ba mb-2">Till days ago:</span>
+                        </div>  
+                        <input type="text" id="tagIdInputTill" class="form-control mb-2"  autocomplete="off" placeholder="Till">
+                    </div> 
+                    <p id="tagIdInfoTxtTill"></p>                   
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6" >
+                    <button id="tagIdButtonClose" onclick="handleCloseProblems()" type="button" class="btn float-left btn-primary mb-2">Close Problems</button>
+                </div>
+            </div>  
+            
+            <div class="row">
+                <div class="col-md-10">
+                    <p></p>
+                    <img id="tagIdProgress" src="/img/ajax-loader.gif" alt="Loading..." />
+                    <div id="tagIdAlert" hidden class="" role="alert"></div>
+                </div>
+            </div>          
+                                
+        </div>
+    </div>
+</div>
+
+<script type="text/JavaScript">
+
+//------------------------------------------------------------------------------------------
+// Globals
+//------------------------------------------------------------------------------------------
+var HOST_ID = 0;
+var HOST_NAME_VALID = false;
+var TILL_FROM_VALID = false
+
+// API actions
+
+var TB_SEARCH_HOST    = "/bin/perl "+UTILSCRIPTS+"/tb_search_host.pl";
+var TB_CLOSE_PROBLEMS = "/bin/bash "+UTILSCRIPTS+"/tb_close_problems.sh";
+
+//------------------------------------------------------------------------------------------
+$(document).ready(function() {
+
+    HOST_ID = 0;
+    HOST_NAME_VALID = false;
+    TILL_FROM_VALID = false
+    
+    infoTxtHide("tagIdInfoTxtHostName");
+    infoTxtHide("tagIdInfoTxtFrom");
+    infoTxtHide("tagIdInfoTxtTill");
+    alertHide();
+    $("#tagIdProgress").hide();
+    
+    $("#tagIdDropDownHosts").hide();
+    
+    document.getElementById("tagIdInputFrom").setAttribute("disabled","");
+    document.getElementById("tagIdInputTill").setAttribute("disabled","");
+    document.getElementById("tagIdButtonClose").setAttribute("disabled",""); 
+    document.getElementById("tagIdInputHostName").focus();
+}); 
+
+//------------------------------------------------------------------------------------------
+$("#tagIdInputFrom").keyup(function(event) {
+
+    checkInputNumber("#tagIdInputFrom", "tagIdInfoTxtFrom", event);
+
+});
+
+//------------------------------------------------------------------------------------------
+$("#tagIdInputTill").keyup(function(event) {
+
+    alertHide();
+    checkInputNumber("#tagIdInputTill", "tagIdInfoTxtTill", event);
+    
+});
+
+//------------------------------------------------------------------------------------------
+function checkInputNumber (tagIdInp, tagIdInfoTxt, event) {
+
+    if (event.keyCode != 0) {
+        var val = document.querySelector(tagIdInp).value;
+        val = val.replace(/^\s*|\s*$/g,'');
+        if (val != '') {
+            if (val.match(/^[0-9]*$/) != null) {
+            
+                infoTxtHide(tagIdInfoTxt);
+                var fromDays = document.querySelector("#tagIdInputFrom").value;
+                var tillDays = document.querySelector("#tagIdInputTill").value;
+                
+                if (fromDays && tillDays) {
+                    if (fromDays-tillDays <= 0) {
+                        TILL_FROM_VALID = false;
+                        infoTxtDanger("tagIdInfoTxtTill", '"From"-"Till" is <= 0');
+                    } 
+                    else {
+                        TILL_FROM_VALID = true;
+                    }
+                }
+                else {
+                    TILL_FROM_VALID = false;
+                }   
+                
+                if (TILL_FROM_VALID && HOST_NAME_VALID) {
+                    document.getElementById("tagIdButtonClose").removeAttribute("disabled","");
+                }
+                else {
+                    document.getElementById("tagIdButtonClose").setAttribute("disabled","");            
+                }   
+            }   
+            else {
+                infoTxtDanger(tagIdInfoTxt, 'No number');
+                document.getElementById("tagIdButtonClose").setAttribute("disabled","");
+            }
+        }
+        else {
+            infoTxtHide("tagIdInfoTxtTill");
+            infoTxtHide(tagIdInfoTxt);
+            document.getElementById("tagIdButtonClose").setAttribute("disabled","");
+        }
+    }
+}
+
+//------------------------------------------------------------------------------------------
+$("#tagIdInputHostName").keyup(function(event) {
+
+    // enter key
+    if (event.keyCode === 13) {
+        handleApplyButton();
+        
+      //space and all other keys        
+    } else if (event.keyCode != 0) {
+    
+        document.getElementById("tagIdButtonClose").setAttribute("disabled","");
+        alertHide();
+        HOST_NAME_VALID = false;
+        
+        var host = document.querySelector("#tagIdInputHostName").value;
+        //clear space
+        host = host.replace(/^\s*|\s*$/g,'');
+        
+        if (host != '') {       
+            // get the search result host list (max. 15) as JSON string
+            $.get(TOOLBOX_URL+"/wrapper.php?action="+TB_SEARCH_HOST+"&arg1="+host+"&rand="+Math.floor(Math.random()*100), function(data) {
+                var results = JSON.parse(data).result;
+                var dropDownList = '';
+                
+                for (var r in results) {            
+                    posHL = results[r].host.search(new RegExp(host,'i'));
+                    sizeHL = host.length;
+                    stringHL = results[r].host.substring(posHL, posHL+sizeHL);
+                    stringHLRegex = new RegExp(stringHL);
+                    hostHL = results[r].host.replace(stringHLRegex,'<span class="text-danger">'+stringHL+'</span>');
+                    dropDownList += '<a href="#" class="dropdown-item" onclick="selectHost(\''+results[r].host+'\',\''+results[r].hostid+'\')">'+hostHL+'</a>';
+                }
+                if (dropDownList != '') {
+                    document.getElementById("tagIdDropDownHosts").innerHTML = dropDownList;
+                    infoTxtHide("tagIdInfoTxtHostName");
+                    $("#tagIdDropDownHosts").show();
+                } else {
+                    infoTxtDanger("tagIdInfoTxtHostName", "No matches found");
+                    $("#tagIdDropDownHosts").hide();
+                }   
+            }); //end get()
+        }
+        else {
+            $("#tagIdDropDownHosts").hide();
+            infoTxtHide("tagIdInfoTxtHostName");
+        }
+    }
+});
+
+//------------------------------------------------------------------------------------------
+function selectHost(host, hostid) {
+
+    HOST_ID = hostid;
+    HOST_NAME_VALID = true;
+    
+    document.querySelector("#tagIdInputHostName").value = host;
+    
+    $("#tagIdDropDownHosts").hide();
+    document.getElementById("tagIdInputFrom").removeAttribute("disabled","");
+    document.getElementById("tagIdInputTill").removeAttribute("disabled","");
+    
+    if (TILL_FROM_VALID && HOST_NAME_VALID) {
+        document.getElementById("tagIdButtonClose").removeAttribute("disabled","");
+    }
+    else {
+        document.getElementById("tagIdButtonClose").setAttribute("disabled","");            
+    }
+}
+
+//------------------------------------------------------------------------------------------
+function handleCloseProblems() {    
+    
+    var host = document.querySelector("#tagIdInputHostName").value;
+    var fromDays = document.querySelector("#tagIdInputFrom").value;
+    var tillDays = document.querySelector("#tagIdInputTill").value;
+    
+    closeProblems(host, fromDays, tillDays);
+}
+
+//------------------------------------------------------------------------------------------
+function closeProblems(host, fromDays, tillDays) {
+    $("#tagIdProgress").show();
+    $.get(TOOLBOX_URL+"/wrapper.php?action="+TB_CLOSE_PROBLEMS+"&arg1="+host+"&arg2="+fromDays+"&arg3="+tillDays+"&rand="+Math.floor(Math.random()*100), function(data) {
+        $("#tagIdProgress").hide();
+        var msgOk  = ' problem(s) closed successfully';
+        var msgErr = 'No problems could be found or manual close not allowed<br>';
+        
+        if (data) {
+            try {
+                var obj = JSON.parse(data).result;
+                    if ("eventids" in obj && obj.eventids.length >= 1) {
+                        alertSuccess(obj.eventids.length + msgOk);
+                    }
+                    else {
+                        alertDanger(msgErr);
+                    }
+            } catch (exception) {
+                alertDanger(msgErr);
+            }   
+        } 
+        else {
+            alertDanger(msgErr+'ERROR: empty answer from zabbix host');
+        }
+    }); //end get()
+}
+
+//------------------------------------------------------------------------------------------
+
+
+</script>   

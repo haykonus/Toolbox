@@ -1,0 +1,67 @@
+<h2> Show val import files </h2>
+<div class="base">
+    <div class="row">   
+    
+        <div class="col"> 
+            <div class="row">
+                <div class="col-md-6" >
+                    <div class="input-group">
+                        <button id="tagIdButtonShow" onclick="handleShow()" type="button" class="btn float-right btn-primary mb-2">Show Files</button>
+                    </div> 
+                    <p id="tagIdInfoTxt"></p>
+                </div>  
+            </div>
+            
+            <img id="tagIdProgress" src="/img/ajax-loader.gif" alt="Loading..." />
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="tagIdAlert" hidden class="" role="alert"></div>
+                </div>
+            </div>                                  
+        </div>
+        
+    </div>
+</div>
+
+<script type="text/JavaScript">
+
+//------------------------------------------------------------------------------------------
+// Globals
+//------------------------------------------------------------------------------------------
+
+// API actions
+
+var TB_SHOW_VALIMPOT_FILES = "/bin/bash "+UTILSCRIPTS+"/tb_show_ValImpotFiles.sh";
+
+//------------------------------------------------------------------------------------------
+$(document).ready(function() {
+
+    infoTxtHide("tagIdInfoTxt");
+    alertHide();
+    $("#tagIdProgress").hide();
+    
+}); 
+
+//------------------------------------------------------------------------------------------
+function handleShow() {
+
+    $("#tagIdProgress").show();
+    
+    $.get(TOOLBOX_URL+"/wrapper.php?action="+TB_SHOW_VALIMPOT_FILES+"&rand="+Math.floor(Math.random()*100), function(data) {
+    
+        $("#tagIdProgress").hide();
+        if (data) {
+            if(data == 'success') {
+                alertSuccess('Script was successfully executed');
+            }
+            else {
+                alertDanger('Script was not successfully executed');
+            }   
+        } 
+        else {
+            alertDanger('Empty answer from host');
+        }
+    }); //end get()
+}
+
+</script>   

@@ -17,7 +17,7 @@ $curl               = '/bin/curl';
 $CURL_DEBUG_FLAG    = "OFF";
 $api_url            = "http://zabbix/api_jsonrpc.php";
 
-$host_id            = $ARGV[0];
+$host               = $ARGV[0];
 
 #--------------------------------------------------------------------------------------
 # Autorisation
@@ -34,16 +34,17 @@ $out = `$curlCmd`; EXE_DEBUG ($curlCmd, $?, $out, $CURL_DEBUG_FLAG );
 $zbx_auth = decode_json($out)->{'result'};
 
 #--------------------------------------------------------------------------------------
-# get host
+# get trigger
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{
         "jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
-        "method": "item.get",
+        "method": "host.get",
         "params": {
-                "hostids": "'.$host_id.'",
-                "output":   [ "name", "key_", "delay", "itemid", "status" ],
-                "selectTriggers": [ "triggerid" ]       
+            "output": ["hostid"],
+            "filter":{
+                "host": ["'.$host.'"]
+            }
         }
 }\'';
 

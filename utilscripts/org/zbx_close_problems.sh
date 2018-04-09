@@ -51,7 +51,6 @@ problemeids=`curl -s -X GET -H 'Content-Type:application/json' -d'{ "jsonrpc":"2
           "time_till" : "'$timetill'"
           }
 }' http://zabbix/api_jsonrpc.php | jq -c "[.result[].eventid]" `
-
 ackevent=`curl -s -X GET -H 'Content-Type:application/json' -d'{ "jsonrpc":"2.0","auth":"'$zbx_auth'","id":3,
 "method": "event.acknowledge",
 "params": {
@@ -60,6 +59,7 @@ ackevent=`curl -s -X GET -H 'Content-Type:application/json' -d'{ "jsonrpc":"2.0"
           "action"  : 1
           }
 }' http://zabbix/api_jsonrpc.php | jq -c ".result[] " `
+
 echo $ackevent
 exit
 

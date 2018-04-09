@@ -1,0 +1,206 @@
+<h2> Add a single host </h2>
+<div class="base">
+	<div class="row">			
+		<div class="col">
+
+			<div class="row">
+				<div class="col-md-6">
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text mb-2">Host:</span>
+							<span id="tagIdTxtPrefix" class="input-group-text text-success bg-white mb-2"></span>
+							<span id="tagIdTxtPrefixPlus" class="input-group-text mb-2">+</span>
+						</div>
+						<input type="text" id="tagIdInpHostName" value="" class="form-control mb-2" autocomplete="off" placeholder="Name type here">
+						<div class="input-group-prepend">
+							<button id="tagIdBtnHostType" class="btn btn-secondary dropdown-toggle ml-1 mb-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+							<div id="tagIdDdnList" class="dropdown-menu"></div>
+						</div>
+						<div class="input-group-append">
+							<button id="tagIdBtnAddHost" onclick="handleAddHost()" type="button" class="btn btn-primary ml-1 mb-2">Add</button>
+						</div>
+					</div> 
+				</div>	
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6">
+					<p id="tagIdInfoTxt"></p>
+				</div>
+			</div>	
+				
+			<div class="row">
+				<div class="col-md-6">
+					<div id="tagIdAlert" hidden class="" role="alert"></div>
+				</div>
+			</div>
+					
+		</div> 	
+				
+	</div>		
+</div>
+
+<script type="text/JavaScript">
+
+
+//------------------------------------------------------------------------------------------
+// Globals
+//------------------------------------------------------------------------------------------
+
+var HOST_TYPES = [
+
+	{ 	
+		label:"ESX",         
+		prefix:"",
+		add_action:"/bin/bash "+UTILSCRIPTS+"/tb_add_ESX_host.sh"		
+	},
+	{ 	
+		label:"Oracle",      
+		prefix:"ora1",
+		add_action:"/bin/bash "+UTILSCRIPTS+"/tb_add_oracle_host.sh"
+	},				
+	{ 	
+		label:"MS-SQL",      
+		prefix:"sql-pe1-",
+		add_action:"/bin/bash "+UTILSCRIPTS+"/tb_add_mssql_host.sh"
+	}
+];
+		
+var	HOST_TYPE;
+
+// API actions
+
+var	TB_GET_HOST = "/bin/perl "+UTILSCRIPTS+"/tb_get_host.pl";
+
+//------------------------------------------------------------------------------------------
+$(document).ready(function() {
+
+	HOST_TYPE = 0; //ESX as default
+	prefillForm (HOST_TYPE);
+	document.getElementById("tagIdBtnAddHost").setAttribute("disabled",""); 
+}); 
+
+//------------------------------------------------------------------------------------------
+function prefillForm (hostType) {
+
+	document.getElementById("tagIdInpHostName").value = '';
+	document.getElementById("tagIdBtnHostType").innerHTML = HOST_TYPES[hostType].label;
+	document.getElementById("tagIdBtnAddHost").setAttribute("disabled","");
+	infoTxtHide("tagIdInfoTxt");
+	alertHide();
+
+	if (HOST_TYPES[HOST_TYPE].prefix != '') {	
+		$("#tagIdTxtPrefix").show();
+		$("#tagIdTxtPrefixPlus").show();
+		document.getElementById("tagIdTxtPrefix").innerHTML = HOST_TYPES[hostType].prefix;
+	} 
+	else {
+		$("#tagIdTxtPrefix").hide();
+		$("#tagIdTxtPrefixPlus").hide();
+	}
+	
+	document.getElementById("tagIdDdnList").innerHTML = '';
+	for (var ht in HOST_TYPES) {
+		document.getElementById("tagIdDdnList").innerHTML += '<a class="dropdown-item" onclick="handleDropDown('+ht+') "href="#">'+HOST_TYPES[ht].label+'</a>';
+	}
+	
+	document.getElementById("tagIdInpHostName").focus();
+}
+
+//------------------------------------------------------------------------------------------
+$("#tagIdInpHostName").keyup(function(event) {
+		
+	// enter key
+	if (event.keyCode === 13) {
+		handleAddHost();
+		
+	// all other keys	
+	} else {	
+		alertHide();
+		var host = document.querySelector("#tagIdInpHostName").value;
+		if (HOST_TYPES[HOST_TYPE].prefix != '') {
+			host = HOST_TYPES[HOST_TYPE].prefix + host;
+		}
+		//host = host.replace(/^\s*|\s*$/g,'');
+		if (host != '') {
+			if (HOST_TYPES[HOST_TYPE].prefix == '') {
+				validateHostName = new RegExp(/^[a-zA-Z]+[a-zA-Z0-9\-\_\.]*$/);
+			}
+			else {
+				validateHostName = new RegExp(/^[a-zA-Z0-9\-\_\.]*$/);
+			}			
+			if (host.match(validateHostName) != null) {
+				$.get(TOOLBOX_URL+"/wrapper.php?action="+TB_GET_HOST+"&arg1="+host+"&rand="+Math.floor(Math.random()*100), function(data) {
+					var results = JSON.parse(data).result;
+					if (results.length !== 0 && results[0].hostid) {
+						// host exists !
+						document.getElementById("tagIdBtnAddHost").setAttribute("disabled","");
+						infoTxtDanger("tagIdInfoTxt",'Host with this name already exist');
+					}
+					else {
+						document.getElementById("tagIdBtnAddHost").removeAttribute("disabled","");
+						infoTxtHide("tagIdInfoTxt");
+					}
+				}); //end get()
+			}
+			else {
+				document.getElementById("tagIdBtnAddHost").setAttribute("disabled","");
+				infoTxtDanger("tagIdInfoTxt",'Character not allowed');
+			}
+		} 
+		else {
+			document.getElementById("tagIdBtnAddHost").setAttribute("disabled","");
+			infoTxtHide("tagIdInfoTxt"); 
+		}		
+	}
+});	
+
+//------------------------------------------------------------------------------------------
+function handleAddHost() {	
+
+	var host = document.querySelector("#tagIdInpHostName").value;
+	addHost(host);
+	document.getElementById("tagIdBtnAddHost").setAttribute("disabled","");
+	document.getElementById("tagIdInpHostName").focus();
+}
+
+//------------------------------------------------------------------------------------------
+function addHost(host) {
+
+	$.get(TOOLBOX_URL+"/wrapper.php?action="+HOST_TYPES[HOST_TYPE].add_action+"&arg1="+host+"&rand="+Math.floor(Math.random()*100), function(data) {
+		
+		var msgOk  = 'The host was added successfully';
+		var msgErr = 'The host could not be added <br>';
+		
+		if (data) {
+			try {
+				var obj = JSON.parse(data).result;
+					if ("hostids" in obj && obj.hostids.length == 1) {
+						alertSuccess(msgOk);
+					}
+					else {
+						alertDanger(msgErr+'ERROR: no "hostids" returned or "hostids.length" != 1 <br> JSON: '+data);
+					}
+			} catch (exception){
+				alertDanger(msgErr+'ERROR: wrog JSON string or "result" not found <br> JSON: '+data);
+			}	
+		} 
+		else {
+			alertDanger(msgErr+'ERROR: empty answer from zabbix host');
+		}
+	}); //end get()
+}
+
+//------------------------------------------------------------------------------------------
+function handleDropDown(hostType) {	
+
+	HOST_TYPE = hostType;
+	prefillForm(hostType);
+	
+}
+
+
+
+
+		
+</script>	

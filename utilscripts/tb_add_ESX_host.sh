@@ -1,9 +1,7 @@
 #!/bin/sh
 #set -xv
-#exec 2>/tmp/add_oracel_host.txt
-oid=$1
-oid=$(echo $oid | tr '[:lower:]' '[:upper:]')
-host="ora1"$oid
+#exec 2>/tmp/add_ESX_host.txt
+host=$1
 host=$(echo $host | tr '[:upper:]' '[:lower:]')
 
 #
@@ -36,15 +34,15 @@ hostcreate=`curl -s -X GET -H 'Content-Type:application/json' -d'{ "jsonrpc":"2.
 "params": {
           "host": "'$host'",
           "interfaces": [ {"useip":0,"dns":"'$host'","ip":"127.0.0.1","main":1,"port":"10050","type":1} ],
-          "groups": [ {"groupid":"31"} , {"groupid":"2"} ],
-          "macros": [ { "macro": "{$ORAOID}", "value": "'$oid'" }],
-          "templates": [ {"templateid":"10422"} ]
+          "groups": [ {"groupid":"172"}, {"groupid":"51"} ],
+          "templates": [ {"templateid":"10456"} , {"templateid":"10133"} ]
           }
 }' http://zabbix/api_jsonrpc.php `
 echo $hostcreate
-#create ZIS Event Unit
-zexec zismain -tcp  "CMD 0301 rexusr REXX ZEXEC_Create_EU \"Oracle $oid\" \"DiscoveredApplications\" " > /dev/null 2>&1
 fi
+#create ZIS Event Unit
+host=`echo $host | cut -d '.' -f1 `
+zexec zismain -tcp  "CMD 0301 rexusr REXX ZEXEC_Create_EU \"$host Ping-HB\" \"ESX Produktion\" " > /dev/null 2>&1
 
 exit
 

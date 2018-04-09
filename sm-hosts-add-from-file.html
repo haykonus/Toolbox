@@ -33,7 +33,7 @@
                     <button id="tagIdBtnCheck" onclick="handleCheckFile()" type="button" class="btn btn-secondary ml-1 mb-2">Check file</button>
                     <button id="tagIdBtnAddHosts" onclick="handleAddHosts()" type="button" class="btn btn-primary ml-1 mb-2">Add Hosts</button>
                     <div id="tagIdDdnList" class="dropdown-menu"></div>
-                    </div>
+                </div>
             </div>
             
             <div class="row">
@@ -48,7 +48,6 @@
                     <table class="table table-striped mt-2" >
                         <tbody id="tagIdTableCheckFile"> </tbody>
                     </table>    
-
                 </div>
             </div>
                 
@@ -129,6 +128,7 @@ function prefillForm (hostType) {
     }
     document.getElementById("tagIdInputFile").focus();
 }
+
 //------------------------------------------------------------------------------------------
 function handleCheckFile() {
 
@@ -161,9 +161,7 @@ function handleCheckFile() {
 	
     for (var i in HOST_LIST) {
         var host = HOST_LIST[i];
-        if (HOST_TYPES[HOST_TYPE].prefix != '') {
-            host = HOST_TYPES[HOST_TYPE].prefix + host;
-        }
+        host = HOST_TYPES[HOST_TYPE].prefix + host;
         tableBody += '<tr><td class="text-center">'+ i + '</td><td>' + host + '</td>';
         if (host.match(validateHostName) != null) {
             // characters OK, check host name
@@ -192,7 +190,6 @@ function handleCheckFile() {
         tableBody += '<td id="tagIdAddRow'+i+'"'+notAdded+'</td></tr>'
     }
 	document.getElementById("tagIdProgress").setAttribute("hidden","");
-	
     document.getElementById("tagIdTableCheckFile").innerHTML = tableBody;
     
     if (HOST_LIST.length == 0 || !allOk) {

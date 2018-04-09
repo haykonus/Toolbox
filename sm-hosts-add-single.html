@@ -120,10 +120,8 @@ $("#tagIdInpHostName").keyup(function(event) {
     } else {    
         alertHide();
         var hostInp = document.querySelector("#tagIdInpHostName").value;
-        //if (HOST_TYPES[HOST_TYPE].prefix != '') {
         host = HOST_TYPES[HOST_TYPE].prefix + hostInp;
-        //}
-        //host = host.replace(/^\s*|\s*$/g,'');
+		
         if (hostInp != '') {
             if (HOST_TYPES[HOST_TYPE].prefix == '') {
                 validateHostName = new RegExp(/^[a-zA-Z]+[a-zA-Z0-9\-\_\.]*$/);

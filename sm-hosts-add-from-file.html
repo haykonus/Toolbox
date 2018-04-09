@@ -4,45 +4,45 @@
 		<div class="col">
 		
 			<div class="row">
-				<div class="col-md-7">
+				<div class="col-md-10">
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text mb-2">Hosts:</span>
 							<span id="tagIdTxtPrefix" class="input-group-text text-success bg-white mb-2"></span>
 							<span id="tagIdTxtPrefixPlus"class="input-group-text mb-2">+</span>
 						</div>
-						
 						<div class="custom-file">
 							<input type="file" class="custom-file-input" id="tagIdInputFile" accept=".txt">
 							<label class="custom-file-control form-control-file custom-file-label" for="tagIdInputFile">Choose file</label>
 						</div>
-						
-						<div class="input-group-prepend">
-							<button id="tagIdBtnHostType" class="btn btn-secondary dropdown-toggle ml-1 mb-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-							<div id="tagIdDdnList" class="dropdown-menu"></div>
-						</div>
-						<div class="input-group-append">
-							<button id="tagIdBtnCheck" onclick="handleCheckFile()" type="button" class="btn btn-secondary ml-1 mb-2">Check file</button>
-						</div>
 					</div> 
 				</div>	
 			</div>
-			
+
 			<div class="row">
-				<div class="col-md-7">
-					<span id="tagIdInfoTxt"></span>
-					<button id="tagIdBtnAddHosts" onclick="handleAddHosts()" hidden type="button" class="btn float-right btn-primary ml-1 mb-2">Add Hosts</button>
+				<div class="col-md-10">
+					<p id="tagIdInfoTxt"></p>
 				</div>
 			</div>
 			
 			<div class="row">
-				<div class="col-md-7">
+				<div class="col-md-10">
+					<button id="tagIdBtnHostType" class="btn btn-secondary dropdown-toggle mb-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+					<button id="tagIdBtnCheck" onclick="handleCheckFile()" type="button" class="btn btn-secondary ml-1 mb-2">Check file</button>
+					<button id="tagIdBtnAddHosts" onclick="handleAddHosts()" type="button" class="btn btn-primary ml-1 mb-2">Add Hosts</button>
+					<div id="tagIdDdnList" class="dropdown-menu"></div>
+					</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-10">
+					<p></p>
 					<div id="tagIdAlert" hidden class="" role="alert"></div>
 				</div>
 			</div>
 			
 			<div class="row">
-				<div class="col-md-7">
+				<div class="col-md-10">
 					<table class="table table-striped mt-2" >
 						<tbody id="tagIdTableCheckFile"> </tbody>
 					</table>	
@@ -95,7 +95,7 @@ $(document).ready(function() {
 	HOST_TYPE = 0; //ESX as default
 	HOST_FILE_LOADED = false;
 	prefillForm (HOST_TYPE);
-	document.getElementById("tagIdBtnAddHosts").setAttribute("hidden",""); 
+	document.getElementById("tagIdBtnAddHosts").setAttribute("disabled",""); 
 }); 
 
 //------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ function prefillForm (hostType) {
 
 	document.getElementById("tagIdBtnHostType").innerHTML = HOST_TYPES[hostType].label;
 	document.getElementById("tagIdBtnCheck").setAttribute("disabled","");
-	document.getElementById("tagIdBtnAddHosts").setAttribute("hidden","");
+	document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
 	document.getElementById("tagIdTableCheckFile").setAttribute("hidden","");
 	//$('.custom-file-input').next('.form-control-file').addClass("selected").html('Choose file');
 	
@@ -165,14 +165,14 @@ function handleCheckFile() {
 			var results = JSON.parse(data).result;
 			if (results.length !== 0 && results[0].hostid) {
 				// host exists !
-				document.getElementById("tagIdBtnAddHosts").setAttribute("hidden","");
+				document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
 				tableBody += '<td '+hostErr+'</td>';
 				isOk = false;
 				allOk = false;
 			}
 			else {
 				// host OK
-				document.getElementById("tagIdBtnAddHosts").removeAttribute("hidden","");
+				document.getElementById("tagIdBtnAddHosts").removeAttribute("disabled","");
 				tableBody += '<td '+hostOk+'</td>';
 				isOk = true;
 			}	
@@ -196,13 +196,12 @@ function handleCheckFile() {
 			infoTxtDanger("tagIdInfoTxt",'Error(s) in hosts file');
 			document.getElementById("tagIdTableCheckFile").removeAttribute("hidden","");			
 		}
-		document.getElementById("tagIdBtnAddHosts").setAttribute("hidden","");	
+		document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");	
 		document.getElementById("tagIdInputFile").focus();
 	}
 	else {
 		infoTxtSuccess("tagIdInfoTxt", 'All host checks OK');
 		document.getElementById("tagIdTableCheckFile").removeAttribute("hidden","");
-		document.getElementById("tagIdBtnAddHosts").removeAttribute("hidden","");
 		document.getElementById("tagIdBtnAddHosts").removeAttribute("disabled","");
 		document.getElementById("tagIdBtnAddHosts").focus();		
 	}	
@@ -237,7 +236,7 @@ $('.custom-file-input').on('change', function(event){
 	$(this).next('.form-control-file').addClass("selected").html(fileName);
 	document.getElementById("tagIdBtnCheck").removeAttribute("disabled","");
 	document.getElementById("tagIdBtnCheck").focus();
-	document.getElementById("tagIdBtnAddHosts").setAttribute("hidden","");
+	document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
 	document.getElementById("tagIdTableCheckFile").setAttribute("hidden","");
 	
 	infoTxtHide("tagIdInfoTxt");

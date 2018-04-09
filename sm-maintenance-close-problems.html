@@ -5,7 +5,7 @@
 		<div class="col"> 
 		
 			<div class="row">
-				<div class="col-md-7" >
+				<div class="col-md-10" >
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text input-group-text-ba mb-2">Host:</span>
@@ -13,9 +13,9 @@
 						<input type="text" id="tagIdInputHostName" class="form-control mb-2" data-toggle="dropdown" autocomplete="off" placeholder="Type here to search">
 						<div id="tagIdDropDownHosts" class="dropdown-menu mt-2"></div>
 						
-						<div class="input-group-append">
+						<!--<div class="input-group-append">
 							<button id="tagIdButtonClose" onclick="handleCloseProblems()" type="button" class="btn float-left btn-primary mb-2">Close Problems</button>
-						</div>
+						</div>-->
 					</div> 
 					<p id="tagIdInfoTxtHostName"></p>
 				</div>	
@@ -23,7 +23,7 @@
 
 			
 			<div class="row">
-				<div class="col-md-4" >
+				<div class="col-md-6" >
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text input-group-text-ba mb-2">From days ago:</span>
@@ -36,7 +36,7 @@
 			</div>
 			
 			<div class="row">
-				<div class="col-md-4" >
+				<div class="col-md-6" >
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text input-group-text-ba mb-2">Till days ago:</span>
@@ -48,7 +48,14 @@
 			</div>
 			
 			<div class="row">
-				<div class="col-md-7">
+				<div class="col-md-6" >
+					<button id="tagIdButtonClose" onclick="handleCloseProblems()" type="button" class="btn float-left btn-primary mb-2">Close Problems</button>
+				</div>
+			</div>	
+			
+			<div class="row">
+				<div class="col-md-10">
+					<p></p>
 					<div id="tagIdAlert" hidden class="" role="alert"></div>
 				</div>
 			</div>			

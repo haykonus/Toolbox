@@ -10,7 +10,7 @@ cd $WORKDIR > /dev/null 2>&1
 `$WORKDIR/zbx_val_hw-info.sh > /dev/null 2>&1`
 #move files to "export" directory
 mv $WORKDIR/*.out $DESTINATION > /dev/null 2>&1
-sleep 2
+
 echo 'success'
 exit 0
 

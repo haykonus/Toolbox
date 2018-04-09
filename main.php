@@ -26,8 +26,8 @@ $TOP_MENU[50] = array (label=>"Maintenance", page=>"",
 
 $TOP_MENU[60] = array (label=>"Interfaces", page=>"",
 				submenu=> array(
-					61 => array (label=>"Show ValImpot files", page=>"sm-interfaces-show-valimpot-files.html"),
-					62 => array (label=>"Create ValImpot files", page=>"sm-interfaces-create-valimpot-files.html")
+					61 => array (label=>"Show val import files", page=>"sm-interfaces-show-val-import-files.html"),
+					62 => array (label=>"Create val import files", page=>"sm-interfaces-create-val-import-files.html")
 				));	
 
 $mainTemplate = "main.html";

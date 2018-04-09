@@ -1,4 +1,5 @@
 <h2> Add hosts from a file </h2>
+
 <div class="base">
     <div class="row">           
         <div class="col">
@@ -9,7 +10,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text mb-2">Hosts:</span>
                             <span id="tagIdTxtPrefix" class="input-group-text text-success bg-white mb-2"></span>
-                            <span id="tagIdTxtPrefixPlus"class="input-group-text mb-2">+</span>
+                            <span id="tagIdTxtPrefixPlus" class="input-group-text mb-2">+</span>
                         </div>
                         <div class="custom-file">
                             <input type="file" class="custom-file-input" id="tagIdInputFile" accept=".txt">
@@ -107,10 +108,9 @@ function prefillForm (hostType) {
     document.getElementById("tagIdBtnCheck").setAttribute("disabled","");
     document.getElementById("tagIdBtnAddHosts").setAttribute("disabled","");
     document.getElementById("tagIdTableCheckFile").setAttribute("hidden","");
-    //$('.custom-file-input').next('.form-control-file').addClass("selected").html('Choose file');
     
     infoTxtHide("tagIdInfoTxt");
-	$("#tagIdProgress").hide();
+	document.getElementById("tagIdProgress").setAttribute("hidden","");
     alertHide();
 
     if (HOST_TYPES[HOST_TYPE].prefix != '') {   
@@ -157,7 +157,8 @@ function handleCheckFile() {
         var validateHostName = new RegExp(/^[a-zA-Z0-9\-\_\.]*$/);
     }
     
-	$("#tagIdProgress").show();
+	document.getElementById("tagIdProgress").removeAttribute("hidden","");
+	
     for (var i in HOST_LIST) {
         var host = HOST_LIST[i];
         if (HOST_TYPES[HOST_TYPE].prefix != '') {
@@ -190,14 +191,13 @@ function handleCheckFile() {
         }
         tableBody += '<td id="tagIdAddRow'+i+'"'+notAdded+'</td></tr>'
     }
-	$("#tagIdProgress").hide();
-    
+	document.getElementById("tagIdProgress").setAttribute("hidden","");
+	
     document.getElementById("tagIdTableCheckFile").innerHTML = tableBody;
-	document.getElementById("tagIdTableCheckFile").removeAttribute("hidden","");
     
     if (HOST_LIST.length == 0 || !allOk) {
         if (HOST_LIST.length == 0) {
-            infoTxtDanger("tagIdInfoTxt",'Empty host file');        
+            infoTxtDanger("tagIdInfoTxt",'Empty host file');   
         }   
         if (!allOk) {
             infoTxtDanger("tagIdInfoTxt",'Error(s) in hosts file');

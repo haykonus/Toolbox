@@ -13,7 +13,6 @@ body {
 
 .form-control {
 	border-radius: .25rem;
-	
 }
 
 .input-group-text-ba {
@@ -21,6 +20,9 @@ body {
 }
 
 .jumbotron { 
+	width: 100%;
+}
 
-  width: 100%;
+input[type=text]::-ms-clear {
+	display: none;
 }

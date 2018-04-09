@@ -1,29 +1,29 @@
 <h2> Agent statistics</h2>
 <div class="base">
-	<div class="row">			
-		<div class="col-5">
-			<img id="alist_progress" src="/img/ajax-loader.gif" alt="Loading..." />
-			<div id="alist_loaded" style="display:none">
-				<table class="table table-striped">
-					<thead>
-					<tr class="text-center table-light">
-						<th scope="col">Version</th>
-						<th scope="col"># installed</th>
-					</tr>
-					</thead>
-					<tbody id="atable_body"> </tbody>
-				</table>
-			</div>
-		</div>
-		<div class="col-7">	
-			<img id="achart_progress" src="/img/ajax-loader.gif" alt="Loading..." />
-			<div id="achart_loaded" style="display:none"> 
-				<h5 class="card-title text-center">TOP 5 agent versions</h5>
-				<canvas id="agentChart1"></canvas>
-			</div>			
-		</div>
-	</div>
-	<hr>
+    <div class="row">           
+        <div class="col-5">
+            <img id="alist_progress" src="/img/ajax-loader.gif" alt="Loading..." />
+            <div id="alist_loaded" style="display:none">
+                <table class="table table-striped">
+                    <thead>
+                    <tr class="text-center table-light">
+                        <th scope="col">Version</th>
+                        <th scope="col"># installed</th>
+                    </tr>
+                    </thead>
+                    <tbody id="atable_body"> </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-7"> 
+            <img id="achart_progress" src="/img/ajax-loader.gif" alt="Loading..." />
+            <div id="achart_loaded" style="display:none"> 
+                <h5 class="card-title text-center">TOP 5 agent versions</h5>
+                <canvas id="agentChart1"></canvas>
+            </div>          
+        </div>
+    </div>
+    <hr>
 </div>
 
 <script type="text/JavaScript">
@@ -34,92 +34,92 @@
 
 // API actions
 
-var TB_GET_AGENT_VERSIONS =	"/bin/perl "+UTILSCRIPTS+"/tb_get_agent_versions.pl";
-		
+var TB_GET_AGENT_VERSIONS = "/bin/perl "+UTILSCRIPTS+"/tb_get_agent_versions.pl";
+        
 //------------------------------------------------------------------------------------------
 $(document).ready(function() {
 
-	// switch to progress
-	$("#alist_progress").show();
-	$("#alist_loaded").hide();
-	$("#achart_progress").show();
-	$("#achart_loaded").hide();
-	
+    // switch to progress
+    $("#alist_progress").show();
+    $("#alist_loaded").hide();
+    $("#achart_progress").show();
+    $("#achart_loaded").hide();
+    
 
-	// get the agent statistics as JSON string
-	$.get(TOOLBOX_URL+"/wrapper.php?action="+TB_GET_AGENT_VERSIONS+"&rand="+Math.floor(Math.random()*100), function(data) {
+    // get the agent statistics as JSON string
+    $.get(TOOLBOX_URL+"/wrapper.php?action="+TB_GET_AGENT_VERSIONS+"&rand="+Math.floor(Math.random()*100), function(data) {
 
-		// switch to loaded
-		$("#alist_progress").hide();
-		$("#alist_loaded").show();
-		$("#achart_progress").hide();
-		$("#achart_loaded").show();
+        // switch to loaded
+        $("#alist_progress").hide();
+        $("#alist_loaded").show();
+        $("#achart_progress").hide();
+        $("#achart_loaded").show();
 
-		var agents = JSON.parse(data);
-	
-		// sort by version
-		agents.sort(function(a, b) {
-			var nameA = a.version.toUpperCase(); // ignore upper and lowercase
-			var nameB = b.version.toUpperCase(); // ignore upper and lowercase
-			if (nameA > nameB) {
-				return -1;
-			}
-			if (nameA < nameB) {
-				return 1;
-			}
-			return 0;
-		});
-		
-		// build the agent table
-		var atableBody = "";
-		for (var i in agents) {
-			atableBody += '<tr class="text-center"><td>'+agents[i].version+'</td><td>'+agents[i].number+'</td></tr>';
-		}
-		document.getElementById("atable_body").innerHTML = atableBody;
-		
-		// sort by number
-		agents.sort(function(a, b) {
-			var numberA = parseInt(a.number);
-			var numberB = parseInt(b.number);
-			if (numberA < numberB) {
-				return 1;
-			}
-			if (numberA > numberB) {
-				return -1;
-			}
-			return 0;
-		});
-		
-		// build the version and number arrays for the chart
-		var versions = []; var numbers = [];
-		for (var i in agents) {
-			versions.push(agents[i].version);
-			numbers.push(agents[i].number);
-		}
-		// max 5 elements for the chart
-		versions = versions.slice(0,5);
-		numbers = numbers.slice(0,5);
-		
-		// draw the agent chart
-		var ctxD = document.getElementById("agentChart1").getContext('2d');
-		var myChart = new Chart(ctxD, {
-			type: 'doughnut',
-			data: {
-				labels:  versions,
-				datasets: [
-					{
-						data: numbers,
-						backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
-						hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]
-					}
-				]
-			},
-			options: {
-				responsive: true
-			} 
-			
-		}); //Chart()	
-	}); //get()	
+        var agents = JSON.parse(data);
+    
+        // sort by version
+        agents.sort(function(a, b) {
+            var nameA = a.version.toUpperCase(); // ignore upper and lowercase
+            var nameB = b.version.toUpperCase(); // ignore upper and lowercase
+            if (nameA > nameB) {
+                return -1;
+            }
+            if (nameA < nameB) {
+                return 1;
+            }
+            return 0;
+        });
+        
+        // build the agent table
+        var atableBody = "";
+        for (var i in agents) {
+            atableBody += '<tr class="text-center"><td>'+agents[i].version+'</td><td>'+agents[i].number+'</td></tr>';
+        }
+        document.getElementById("atable_body").innerHTML = atableBody;
+        
+        // sort by number
+        agents.sort(function(a, b) {
+            var numberA = parseInt(a.number);
+            var numberB = parseInt(b.number);
+            if (numberA < numberB) {
+                return 1;
+            }
+            if (numberA > numberB) {
+                return -1;
+            }
+            return 0;
+        });
+        
+        // build the version and number arrays for the chart
+        var versions = []; var numbers = [];
+        for (var i in agents) {
+            versions.push(agents[i].version);
+            numbers.push(agents[i].number);
+        }
+        // max 5 elements for the chart
+        versions = versions.slice(0,5);
+        numbers = numbers.slice(0,5);
+        
+        // draw the agent chart
+        var ctxD = document.getElementById("agentChart1").getContext('2d');
+        var myChart = new Chart(ctxD, {
+            type: 'doughnut',
+            data: {
+                labels:  versions,
+                datasets: [
+                    {
+                        data: numbers,
+                        backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
+                        hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]
+                    }
+                ]
+            },
+            options: {
+                responsive: true
+            } 
+            
+        }); //Chart()   
+    }); //get() 
 }); //ready()
 
-</script>	
+</script>   

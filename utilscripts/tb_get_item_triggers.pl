@@ -15,18 +15,18 @@ use constant { true => 1, false => 0 };
 
 $curl               = '/bin/curl';
 $CURL_DEBUG_FLAG    = "OFF";
-$api_url  			= "http://zabbix/api_jsonrpc.php";
+$api_url            = "http://zabbix/api_jsonrpc.php";
 
-$item_id 			= $ARGV[0];
+$item_id            = $ARGV[0];
 
 #--------------------------------------------------------------------------------------
 # Autorisation
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{ 
-	"jsonrpc":"2.0","id":1,
-	"method": "user.login",
-	"params": { "user": "api", "password": "@p1" }
+    "jsonrpc":"2.0","id":1,
+    "method": "user.login",
+    "params": { "user": "api", "password": "@p1" }
 }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;
@@ -38,15 +38,15 @@ $zbx_auth = decode_json($out)->{'result'};
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{
-	    "jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
-	    "method": "trigger.get",
-	    "params": {
-			"itemids": "'.$item_id.'",
-			"expandExpression": true,
-			"expandDescription": true,
-			"expandComment":true,
-	        "output":  [ "description", "expression", "status" ]
-		}
+        "jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
+        "method": "trigger.get",
+        "params": {
+            "itemids": "'.$item_id.'",
+            "expandExpression": true,
+            "expandDescription": true,
+            "expandComment":true,
+            "output":  [ "description", "expression", "status" ]
+        }
 }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;

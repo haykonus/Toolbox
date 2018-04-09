@@ -15,18 +15,18 @@ use constant { true => 1, false => 0 };
 
 $curl               = '/bin/curl';
 $CURL_DEBUG_FLAG    = "OFF";
-$api_url  			= "http://zabbix/api_jsonrpc.php";
+$api_url            = "http://zabbix/api_jsonrpc.php";
 
-$host_name 			= $ARGV[0];
+$host_name          = $ARGV[0];
 
 #--------------------------------------------------------------------------------------
 # Autorisation
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{ 
-	"jsonrpc":"2.0","id":1,
-	"method": "user.login",
-	"params": { "user": "api", "password": "@p1" }
+    "jsonrpc":"2.0","id":1,
+    "method": "user.login",
+    "params": { "user": "api", "password": "@p1" }
 }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;
@@ -42,11 +42,11 @@ $reqBody = '\'{
         "method": "host.get",
         "params": {
                 "output":   [ "host", "hostids"],
-				"searchWildcardsEnabled": false,
-				"limit": "15",
-				"sortfield": "host",
-				"sortorder": "DESC",
-				"search": {
+                "searchWildcardsEnabled": false,
+                "limit": "15",
+                "sortfield": "host",
+                "sortorder": "DESC",
+                "search": {
                     "host": "'.$host_name.'"
                 }
         }

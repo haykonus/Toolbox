@@ -15,16 +15,16 @@ use constant { true => 1, false => 0 };
 
 $curl               = '/bin/curl';
 $CURL_DEBUG_FLAG    = "OFF";
-$api_url  			= "http://zabbix/api_jsonrpc.php";
+$api_url            = "http://zabbix/api_jsonrpc.php";
 
 #--------------------------------------------------------------------------------------
 # Autorisation
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{ 
-	"jsonrpc":"2.0","id":1,
-	"method": "user.login",
-	"params": { "user": "api", "password": "@p1" }
+    "jsonrpc":"2.0","id":1,
+    "method": "user.login",
+    "params": { "user": "api", "password": "@p1" }
 }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;
@@ -36,17 +36,17 @@ $zbx_auth = decode_json($out)->{'result'};
 #--------------------------------------------------------------------------------------
 
 $reqBody = '\'{
-	"jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
-	"method": "item.get",
-	"params": {
-	        "output":   [ "key_","lastvalue","name","itemid"],
-			"monitored": true,
-        	"selectHosts" : [ "name" ] ,
-	        "search": {
-        	          "key_": "agent.version"
-                	}
-        	}
-	}\'';
+    "jsonrpc":"2.0","auth":"'.$zbx_auth.'","id":2,
+    "method": "item.get",
+    "params": {
+            "output":   [ "key_","lastvalue","name","itemid"],
+            "monitored": true,
+            "selectHosts" : [ "name" ] ,
+            "search": {
+                      "key_": "agent.version"
+                    }
+            }
+    }\'';
 
 $curlCmd = $curl.' -s -X GET -H \'Content-Type:application/json\' -d '.$reqBody.' '.$api_url;
 $out = `$curlCmd`; EXE_DEBUG ($curlCmd, $?, $out, $CURL_DEBUG_FLAG );
